@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+
+    <title>Meeeemory game</title>
+</head>
+<body>
+    <div x-data="getCards()" class="px-10 flex items-center h-screen">
+        <h1 class="fixed top-0 right-0 p-10">
+            <span x-text="points" class="font-bold text-3xl"></span>
+            <span class="font-bold text-xs">pts</span>
+        </h1>
+
+        <div class="grid grid-cols-4 gap-10 w-full">
+            <template x-for="card in cards">
+                <div>
+                    <button
+                        x-show="!card.cleared"
+                        :style="
+                            'background: ' + (card.flipped ? card.color : '#ccc');
+                            "
+                        @click="flipCard(card)"
+                        class="w-full h-64 cursor-pointer"
+                    ></button>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script>
+        function pause(milliseconds = 1000)
+        {
+            return new Promise(resolve => {
+                setTimeout(resolve, milliseconds);
+            });
+        }
+
+        function getCards()
+        {
+            return {
+                cards: [
+                    { color: 'green', flipped: false, cleared: false },
+                    { color: 'green', flipped: false, cleared: false },
+                    { color: 'red', flipped: false, cleared: false },
+                    { color: 'red', flipped: false, cleared: false },
+                    { color: 'blue', flipped: false, cleared: false },
+                    { color: 'blue', flipped: false, cleared: false },
+                    { color: 'yellow', flipped: false, cleared: false },
+                    { color: 'yellow', flipped: false, cleared: false },
+                ],
+
+                get flippedCards()
+                {
+                    return this.cards.filter(card => card.flipped);
+                },
+
+                get clearedCards()
+                {
+                    return this.cards.filter(card => card.cleared);
+                },
+
+                get points()
+                {
+                    return this.clearedCards.length / 2;
+                },
+
+                async flipCard(card)
+                {
+                    if ( this.flippedCards.length === 2 ) {
+                        return;
+                    }
+
+                    card.flipped = !card.flipped;
+
+                    if ( this.flippedCards.length === 2 ) {
+                        await pause(500);
+
+                        if ( this.flippedCards[0].color === this.flippedCards[1].color ) {
+                            this.flippedCards.forEach(card => card.cleared = true);
+                        }
+
+                        this.flippedCards.forEach(card => card.flipped = false);
+                    }
+                },
+
+                checkMatch(cards)
+                {
+                    cards[1].color === cards[2].color
+                    ? true
+                    : false
+                },
+
+                hideCards(cards)
+                {
+                    foreach( card in cards )
+                    {
+                        card.cleared = true;
+                    }
+                },
+
+                unFlipCards(cards)
+                {
+                    foreach( card in cards )
+                    {
+                        card.flipped = false;
+                    }
+                }
+            };
+        }
+    </script>
+</body>
+</html>
